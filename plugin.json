@@ -1,19 +1,48 @@
 {
-    "name": "<TODO: your plugin name>",
-    "url": "<TODO: Your Plugin URL here>",
-    "description": "<TODO: Your Plugin description here>",
+    "name": "Memphis Plugin",
+    "url": "https://github.com/EbubeCode/posthog-memphisdev-plugin",
+    "description": "Publish PostHog events to Memphis station on ingestion.",
     "main": "index.js",
     "posthogVersion": ">= 1.25.0",
     "config": [
         {
-            "markdown": "<TODO: your plugin config, remove if none>"
+            "markdown": "Read [the documentation](https://github.com/EbubeCode/posthog-memphisdev-plugin) here for instructions in getting these values."
         },
         {
-            "key": "greeting",
-            "name": "What greeting would you like to use?",
+            "key": "host",
+            "name": "Host address",
             "type": "string",
-            "default": "Hello World!",
-            "required": false
+            "default": "",
+            "required": true
+        },
+        {
+            "key": "user",
+            "name": "Username",
+            "type": "string",
+            "default": "",
+            "required": true
+        },
+        {
+            "key": "token",
+            "name": "Connection Token",
+            "type": "string",
+            "default": "",
+            "required": true,
+            "secret": true
+        },
+        {
+            "key": "station",
+            "name": "Station Name",
+            "type": "string",
+            "default": "",
+            "required": true
+        },
+        {
+            "key": "eventsToIgnore",
+            "name": "Events to ignore",
+            "type": "string",
+            "default": "$feature_flag_called",
+            "hint": "Comma separated list of events to ignore"
         }
     ]
 }

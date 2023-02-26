@@ -1,22 +1,110 @@
-// <TODO: your plugin code here - you can base it on the code below, but you don't have to>
+import fetch from 'node-fetch';
+import { RetryError } from '@posthog/plugin-scaffold';
 
-// Some internal library function
-async function getRandomNumber() {
-    return 4
+async function fetchToken(url, body, global) {
+    try {
+        const response = await fetch(url, {
+            method: 'post',
+            body: JSON.stringify(body),
+            headers: {'Content-Type': 'application/json'}
+        });
+        if (response.status === 401) throw new Error("Unauthorized");
+
+        const data = await response.json();
+        global.jwt = data.jwt;
+        global.refresh_token = data.jwt_refresh_token;
+        const now = new Date().getMilliseconds();
+        global.expires_in = new Date(now + response.expires_in);
+        global.refresh_token_expires_in = new Date(now + response.refresh_token_expires_in);
+    } catch (err) {
+        console.log(`Error authenticating with REST gateway: ${err.message}`);
+        throw new Error(err.message);
+    }
 }
 
-// Plugin method that runs on plugin load
-export async function setupPlugin({ config }) {
-    console.log(`Setting up the plugin`)
+async function authenticate(config, global) {
+    const url = `${config.host}/auth/authenticate`;
+    const body = {
+        username: config.user,
+        connection_token: config.token,
+        token_expiry_in_minutes: 60,
+        refresh_token_expiry_in_minutes: 10000092
+    };
+    await fetchToken(url, body, global);
+    console.log("Authentication success");
 }
 
-// Plugin method that processes event
-export async function processEvent(event, { config, cache }) {
-    const counterValue = (await cache.get('greeting_counter', 0))
-    cache.set('greeting_counter', counterValue + 1)
-    if (!event.properties) event.properties = {}
-    event.properties['greeting'] = config.greeting
-    event.properties['greeting_counter'] = counterValue
-    event.properties['random_number'] = await getRandomNumber()
-    return event
+async function refreshToken(config, global) {
+    const url = `${config.host}/auth/refreshToken`;
+    const body = {
+        jwt_refresh_token: global.refresh_token,
+        token_expiry_in_minutes: 60,
+        refresh_token_expiry_in_minutes: 10000092
+    };
+    try {
+        await fetchToken(url, body, global);
+        console.log("Token refresh");
+    } catch (err) {
+        if (err.message.includes("Unauthorized")) {
+            await authenticate(config, global);
+        }
+        throw new Error(err.message);
+    }
+}
+export async function setupPlugin({ config, global }) {
+    console.log(`Setting up the plugin`);
+    if (!config.host) {
+        throw new Error('Host address missing!');
+    }
+    if (!config.user) {
+        throw new Error('Username missing!');
+    }
+    if (!config.token) {
+        throw new Error('Connection token missing!');
+    }
+    if (!config.station) {
+        throw new Error('Station name missing!');
+    }
+    console.debug('Configurations: ', {...config, token: ''})
+    await authenticate(config, global);
+    global.eventsToIgnore = new Set(
+        config.eventsToIgnore ? config.eventsToIgnore.split(',').map((event) => event.trim()) : null
+    );
+    console.log('Plugin setup complete');
+}
+
+async function sendEventsToMemphisStation(events, { config, global }) {
+    const url = `${config.host}/stations/${config.station}/produce/single`;
+    try {
+        let expired = global.expires_in.getTime() < new Date().getTime();
+        if (expired) {
+            expired = global.refresh_token_expires_in.getTime() < new Date().getTime();
+            if (expired) await authenticate(config, global);
+            else await refreshToken(config, global);
+        }
+        console.debug(`Publishing events: ${events}`)
+
+        const response = await fetch(url, {
+            method: 'post',
+            body: JSON.stringify(events),
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${global.jwt}`
+            }
+        });
+        const data = await response.json();
+        if (data.success) console.log('Events published to Memphis');
+        else console.log('Error', data.error);
+    } catch (err) {
+        console.log(`Error: ${err.message}`);
+        throw new RetryError(err.message);
+    }
+}
+export async function exportEvents(events, meta) {
+    console.log("exportEvents called")
+
+    const eventsToExport = events.filter(event => !meta.global.eventsToIgnore.has(event.event));
+    if (eventsToExport.length > 0) {
+        await sendEventsToMemphisStation(eventsToExport, meta);
+    }
 }
