@@ -1,5 +1,5 @@
 {
-  "name": "@posthog/posthog-memphisdev-plugin",
+  "name": "@posthog/posthog-memphisdev-app",
   "private": true,
   "version": "0.0.1",
   "description": "Publish PostHog events to memphis station.",

@@ -1,12 +1,12 @@
 {
-    "name": "Memphis Plugin",
-    "url": "https://github.com/EbubeCode/posthog-memphisdev-plugin",
+    "name": "Memphis Export",
+    "url": "https://github.com/PostHog/posthog-memphisdev-app",
     "description": "Publish PostHog events to Memphis station on ingestion.",
     "main": "index.js",
     "posthogVersion": ">= 1.25.0",
     "config": [
         {
-            "markdown": "Read [the documentation](https://github.com/EbubeCode/posthog-memphisdev-plugin) here for instructions in getting these values."
+            "markdown": "Read [the documentation](https://github.com/PostHog/posthog-memphisdev-app) here for instructions in getting these values."
         },
         {
             "key": "host",
