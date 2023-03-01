@@ -1,5 +1,5 @@
 {
-    "name": "Memphis.dev data processing platform",
+    "name": "Memphis Export",
     "url": "https://github.com/PostHog/posthog-memphisdev-app",
     "description": "Publish PostHog events to Memphis station on ingestion.",
     "main": "index.js",

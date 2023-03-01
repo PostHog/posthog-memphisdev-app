@@ -1,15 +1,12 @@
-# Memphis.dev data processing platform
+# Memphis Export
 
-Memphis is a next-generation alternative to traditional message brokers.
+Publish events to Memphis, an alternative to traditional message brokers.
 
-A simple, robust, and durable cloud-native message broker wrapped with
-an entire ecosystem that enables cost-effective, fast, and reliable development of modern queue-based use cases.
+Memphis is a simple cloud-native message broker which enables you to build modern, 
+queue-based applications. Intended for data-orientated developers and data engineers, 
+Memphis is ideal for building applications which require large volumes of streamed and enriched data.
 
-Memphis enables the building of modern queue-based applications that require
-large volumes of streamed and enriched data, modern protocols, zero ops, rapid development,
-extreme cost reduction, and a significantly lower amount of dev time for data-oriented developers and data engineers.
-
-Publish PostHog events to Memphis station (topic) on ingestion.
+This app enables you to publish events from PostHog to a Memphis station (topic) upon ingestion.
 
 ## Installation
 

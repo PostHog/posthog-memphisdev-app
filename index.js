@@ -25,7 +25,7 @@ async function fetchToken(url, body, global) {
 }
 
 async function authenticate(config, global) {
-    const url = `${config.host}/auth/authenticate`
+    const url = `${global.host}/auth/authenticate`
     const body = {
         username: config.user,
         connection_token: config.token,
@@ -37,7 +37,7 @@ async function authenticate(config, global) {
 }
 
 async function refreshToken(config, global) {
-    const url = `${config.host}/auth/refreshToken`
+    const url = `${global.host}/auth/refreshToken`
     const body = {
         jwt_refresh_token: global.refresh_token,
         token_expiry_in_minutes: 60,
@@ -54,11 +54,11 @@ async function refreshToken(config, global) {
         }
     }
 }
+
+
 export async function setupPlugin({ config, global }) {
     if (!config.host) {
         throw new Error('Host address missing!')
-    } else if (config.host.slice(-1) === '/') {
-        config.host = config.host.substring(0, config.host.length - 1)
     }
     if (!config.user) {
         throw new Error('Username missing!')
@@ -69,6 +69,9 @@ export async function setupPlugin({ config, global }) {
     if (!config.station) {
         throw new Error('Station name missing!')
     }
+    if (config.host.slice(-1) === '/') global.host = config.host.substring(0, config.host.length-1)
+    else global.host = config.host
+
     console.debug('Configurations: ', { ...config, token: '' })
     await authenticate(config, global)
     global.eventsToIgnore = new Set(
@@ -77,7 +80,7 @@ export async function setupPlugin({ config, global }) {
 }
 
 async function sendEventsToMemphisStation(events, { config, global }) {
-    const url = `${config.host}/stations/${config.station}/produce/single`
+    const url = `${global.host}/stations/${config.station}/produce/batch`
     try {
         let expired = global.expires_in.getTime() < new Date().getTime()
         if (expired) {
