@@ -1,23 +1,24 @@
 {
-    "name": "Memphis Plugin",
-    "url": "https://github.com/EbubeCode/posthog-memphisdev-plugin",
+    "name": "Memphis.dev data processing platform",
+    "url": "https://github.com/PostHog/posthog-memphisdev-app",
     "description": "Publish PostHog events to Memphis station on ingestion.",
     "main": "index.js",
     "posthogVersion": ">= 1.25.0",
     "config": [
         {
-            "markdown": "Read [the documentation](https://github.com/EbubeCode/posthog-memphisdev-plugin) here for instructions in getting these values."
+            "markdown": "Read [the documentation](https://github.com/PostHog/posthog-memphisdev-app) here for instructions in getting these values."
         },
         {
             "key": "host",
-            "name": "Host address",
+            "name": "REST Gateway URL",
             "type": "string",
             "default": "",
+            "hint": "Specify the domain of the REST gateway (eg https://restgw.sandbox.memphis.dev)",
             "required": true
         },
         {
             "key": "user",
-            "name": "Username",
+            "name": "Application-type Username",
             "type": "string",
             "default": "",
             "required": true
