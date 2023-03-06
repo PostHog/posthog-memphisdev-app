@@ -10,14 +10,15 @@
         },
         {
             "key": "host",
-            "name": "Host address",
+            "name": "REST Gateway URL",
             "type": "string",
             "default": "",
+            "hint": "Specify the domain of the REST gateway (eg https://restgw.sandbox.memphis.dev)",
             "required": true
         },
         {
             "key": "user",
-            "name": "Username",
+            "name": "Application-type Username",
             "type": "string",
             "default": "",
             "required": true
